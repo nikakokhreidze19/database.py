@@ -1,0 +1,81 @@
+import sqlite3
+
+
+# დავაკავშიროთ სტრუქტურის აგების მიზნის ოსკარის ბაზასთან ფუნქციის საშუალებით:
+def db_connector(db_name):
+    return sqlite3.connect(db_name)
+
+
+# ამ შემთხვევაში fetchall ის გამოყენებით გამოვიტანე ყველა მონაცემი 1930 დან 2016 წლამდე გამარჯვებული ადამიანებისა სიის სახით წარმოდგენილს
+def select_info(conn):
+    print("1930 წლიდან 2016 წლამდე ოსკარის გამარჯვებულთა მონაცემები:  ")
+    cursor = conn.cursor()
+    select_query = "SELECT * FROM oscar WHERE year >= 1930 "
+    cursor.execute(select_query)
+    # ამ შემთხვევაში გვსურს წამოვიღოთ ყველა ჩანაწერი  სასურველი ქუერისთვის
+    all_records = cursor.fetchall()
+    for all_record in all_records:
+        print(all_record)
+
+
+#  ამ შემთხვევაში fetchone() ის საშუალებით გამოვიტანე 2015 წელს გამარჯვებული ორი ადამიანის სახელი
+def select_only_name_info(conn):
+    print("2015 წელს გაიმარჯვა :  ")
+    cursor = conn.cursor()
+    select_query = "SELECT * FROM oscar WHERE year = 2015 "
+    cursor.execute(select_query)
+    name_record = cursor.fetchone()
+    print(name_record[3])
+    name_record = cursor.fetchone()
+    print(name_record[3])
+
+
+# ამ შემთხვევაში fetchmany() ის გამოყენებით მე დავასელექტე 2013 წლიდან ერთმანეთის მომდევნო ოთხი ადამიანის მონაცემები თუ გავზრდიდი fatchmany()ფრჩხილებში ჩაწერილ რიცხვს შესაბამისად გაიზრდებოდა რაოდენობა ამორჩეული მონაცემებისა
+def select_four_info(conn):
+    print("2013 წლის ჩათვლით ერთმანეთის მომდევნო  ოთხი გამარჯვებულის მონაცემები:    ")
+    cursor = conn.cursor()
+    select_query = "SELECT * FROM oscar WHERE year >= 2013 "
+    cursor.execute(select_query)
+    four_record = cursor.fetchmany(4)
+    for four_records in four_record:
+        print(four_records)
+
+#ქ ჩვენ insert into ბრძანებით ვაკეთებთ ცხრილში მონაცემების ჩამატებას მომხმარებლის მიერ არჩეული ახალი მონაცემებით
+def insert_into(conn):
+    print("იმისათვის რომ ცხრილში ჩაამატოთ მონაცემები უნდა შეიყვანოთ შესაბამისი ინფორმაცია :")
+    new_id = int(input("შეიყვანედ აიდი: "))
+    new_year = int(input("შეიყვანეთ წელი: "))
+    new_age = int(input("შეიყვანთ მსახიობის წლოვანება: "))
+    new_name = input("შეიყვანთ მსახიობის სახელი და გვარი: ")
+    new_gender = input("შეიყვანეთ მსახიობის სქესი: ")
+    new_movie = input("შეიყვანეთ ფილმის დასახელება: ")
+    cursor = conn.cursor()
+    cursor.execute('INSERT INTO oscar (id,year, age, name, gender, movie)  VALUES (?,?, ?, ?,?,?)',(new_id,new_year,new_age,new_name,new_gender,new_movie))
+    conn.commit()
+
+#ამ შემთხვევაში update ფუნქციით ჩვენ შეგვიძლია შევცვალოთ მონაცემი იმის მიხედვით თუ რას ჩააწოდებს მომხმარებელი
+def update_info(conn):
+    print("თუ გსურთ განაახლოთ ინფორმაცია შეავსეთ სასურველი ველი: ")
+    update_id = int(input("შეიყვანეთ სასურველი აიდი: "))
+    cursor=conn.cursor()
+    cursor.execute( "UPDATE oscar SET id = {} WHERE name = 'nika kokhreidze'".format(update_id))
+    conn.commit()
+
+
+
+
+# შევქმნათ პროგრამის ძირითადი  main ფუნქცია სადაც მოხდება გამოძახება ფუნქციების  და ბაზასთან კავშირის დამყარება ასევე დასრულება(სტრუქტურისთვის და სილამაზისთვის)
+def main():
+    conn = db_connector("oscar_winners.sqlite")
+    select_info(conn)
+    select_only_name_info(conn)
+    select_four_info(conn)
+    insert_into(conn)
+    update_info(conn)
+#     ბაზასთან კავშირის დასასრული
+    conn.close()
+
+
+# name ფუნქცია ამოწმებს არის თუ არა პროგრამა არსებული ფაილიდან გაშვებული
+if __name__ == '__main__':
+    main()
